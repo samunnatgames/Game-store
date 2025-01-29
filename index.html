@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samunnat Game Store</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #1a237e;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .header nav {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .header nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .header nav a:hover {
+            background: #3949ab;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1a237e;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background-color: #3949ab;
+        }
+        .hidden {
+            display: none;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .card {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #1a237e;
+            color: white;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Samunnat Game Store</h1>
+        <nav>
+            <a href="#home" onclick="showSection('home')">Home</a>
+            <a href="#contact">Contact</a>
+            <a href="#about">About</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div id="home">
+            <h2>Select Your Role</h2>
+            <button class="btn" onclick="showSection('user')">User</button>
+            <button class="btn" onclick="showSection('developerLogin')">Developer</button>
+        </div>
+
+        <div id="user" class="hidden">
+            <h3>Available Games</h3>
+            <div id="gameList">
+                <p>No games available at the moment.</p>
+            </div>
+            <button class="btn" onclick="showSection('home')">Back</button>
+        </div>
+
+        <div id="developerLogin" class="hidden">
+            <h3>Developer Login</h3>
+            <input type="password" id="password" class="form-control" placeholder="Enter Password">
+            <button class="btn" onclick="loginDeveloper()">Login</button>
+            <button class="btn" onclick="showSection('home')">Cancel</button>
+        </div>
+
+        <div id="developer" class="hidden">
+            <h3>Developer Panel</h3>
+
+            <div>
+                <input type="text" id="gameTitle" class="form-control" placeholder="Enter Game Title">
+                <textarea id="gameDescription" class="form-control" placeholder="Enter Short Description"></textarea>
+                <label for="gameFile">Upload Game File:</label>
+                <input type="file" id="gameFile" class="form-control">
+                <button class="btn" onclick="addGame()">Add Game</button>
+            </div>
+
+            <h4>Manage Games</h4>
+            <div id="manageGames">
+                <p>No games to manage.</p>
+            </div>
+
+            <button class="btn" onclick="logoutDeveloper()">Logout</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Samunnat Sharma. All rights reserved. | Contact: <a href="mailto:samunnat@example.com" style="color: white;">samunnat@example.com</a></p>
+    </footer>
+
+    <script>
+        let games = JSON.parse(localStorage.getItem('games')) || [];
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        function loginDeveloper() {
+            const password = document.getElementById('password').value;
+            if (password === 'JKLMPt123') {
+                showSection('developer');
+            } else {
+                alert('Incorrect password.');
+            }
+        }
+
+        function logoutDeveloper() {
+            document.getElementById('password').value = '';
+            showSection('home');
+        }
+
+        function addGame() {
+            const gameTitle = document.getElementById('gameTitle').value;
+            const gameDescription = document.getElementById('gameDescription').value;
+            const gameFile = document.getElementById('gameFile').files[0];
+
+            if (gameTitle && gameDescription && gameFile) {
+                const gameURL = URL.createObjectURL(gameFile);
+                games.push({ title: gameTitle, description: gameDescription, file: gameURL });
+                localStorage.setItem('games', JSON.stringify(games));
+                alert('Game added successfully!');
+                updateGameList();
+                document.getElementById('gameTitle').value = '';
+                document.getElementById('gameDescription').value = '';
+                document.getElementById('gameFile').value = '';
+            } else {
+                alert('Please fill in all fields and upload a file.');
+            }
+        }
+
+        function updateGameList() {
+            const gameList = document.getElementById('gameList');
+            const manageGames = document.getElementById('manageGames');
+
+            if (games.length === 0) {
+                gameList.innerHTML = '<p>No games available at the moment.</p>';
+                manageGames.innerHTML = '<p>No games to manage.</p>';
+                return;
+            }
+
+            gameList.innerHTML = '';
+            manageGames.innerHTML = '';
+
+            games.forEach((game, index) => {
+                gameList.innerHTML += `<div class="card">
+                    <h4>${game.title}</h4>
+                    <p>${game.description}</p>
+                    <a href="${game.file}" download="${game.title}" class="btn">Download</a>
+                </div>`;
+                manageGames.innerHTML += `<div class="card">
+                    <h4>${game.title}</h4>
+                    <p>${game.description}</p>
+                    <button class="btn" onclick="deleteGame(${index})">Delete</button>
+                </div>`;
+            });
+        }
+
+        function deleteGame(index) {
+            URL.revokeObjectURL(games[index].file);
+            games.splice(index, 1);
+            localStorage.setItem('games', JSON.stringify(games));
+            alert('Game deleted successfully!');
+            updateGameList();
+        }
+
+        updateGameList();
+        showSection('home');
+    </script>
+</body>
+</html>
